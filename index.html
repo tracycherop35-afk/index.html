@@ -263,9 +263,8 @@
         };
 
         // ── QUESTIONS POOL (82) ──────────────────────
-        // For code questions, we add a `checks` array with {regex, points}
         const QUESTIONS_POOL = [
-            // Section A: MCQ (40) - unchanged
+            // Section A: MCQ (40)
             { id:1, section:'A', type:'mcq', question:'Which of the following is the correct syntax to declare a variable in C++?', options:['int x;','variable x;','x = int;','declare x;'], answer:0 },
             { id:2, section:'A', type:'mcq', question:'Which data type is used to store a single character?', options:['char','string','int','float'], answer:0 },
             { id:3, section:'A', type:'mcq', question:'What is the index of the first element in an array?', options:['0','1','-1','Depends on array'], answer:0 },
@@ -307,7 +306,7 @@
             { id:39, section:'A', type:'mcq', question:'Which of the following is a valid use of `new`?', options:['int *p = new int;','int p = new int;','new int p;','int *p = new int();'], answer:0 },
             { id:40, section:'A', type:'mcq', question:'What is the correct way to deallocate memory allocated with `new`?', options:['delete ptr;','free(ptr);','dealloc(ptr);','remove ptr;'], answer:0 },
 
-            // Section B: True/False (20) - unchanged
+            // Section B: True/False (20)
             { id:41, section:'B', type:'tf', question:'C++ is a case‑sensitive language.', answer:true },
             { id:42, section:'B', type:'tf', question:'An array index can be negative.', answer:false },
             { id:43, section:'B', type:'tf', question:'A function can return multiple values using references.', answer:true },
@@ -329,7 +328,7 @@
             { id:59, section:'B', type:'tf', question:'A reference must be initialized when declared.', answer:true },
             { id:60, section:'B', type:'tf', question:'The `endl` manipulator only inserts a newline.', answer:false },
 
-            // Section C: Short Answer (20) - unchanged
+            // Section C: Short Answer (20)
             { id:61, section:'C', type:'fill', question:'What is the output of `cout << 2 + 2 * 2;`?', answer:'6' },
             { id:62, section:'C', type:'fill', question:'Write the keyword to declare a constant integer.', answer:'const' },
             { id:63, section:'C', type:'fill', question:'Name the function that returns the absolute value of an integer.', answer:'abs' },
@@ -351,7 +350,7 @@
             { id:79, section:'C', type:'fill', question:'Write the keyword to throw an exception.', answer:'throw' },
             { id:80, section:'C', type:'fill', question:'How do you declare an empty vector of strings?', answer:'vector<string> v;' },
 
-            // Section D: Practical Coding (2) – 10 marks each, now auto‑graded
+            // Section D: Practical Coding (2) – auto‑graded
             { 
                 id:81, section:'D', type:'code', 
                 question:'Write a complete C++ program that reads an integer from the user and prints whether it is even or odd. Include necessary headers and a main function.', 
@@ -640,7 +639,7 @@
             },
             isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement); },
             blockCheating(e) {
-                if (state.submitted || dom.lockScreen.style.display !== 'none') return;
+                if (state.submitted || dom.examContainer.style.display === 'none') return;   // only during exam
                 if (['contextmenu','copy','paste','cut','dragstart','selectstart'].includes(e.type)) { e.preventDefault(); this.showWarning(); }
                 if (e.type === 'keydown') {
                     const key = e.key, ctrl = e.ctrlKey || e.metaKey;
@@ -776,7 +775,7 @@
                 const percent = Math.round((correct / MAX_MARKS) * 100);
                 const grade = this.getGrade(percent);
                 const timeUsed = CONFIG.examTime - state.timeRemaining;
-                let html = `<span class="emoji-big">${percent>=90?'🏆':percent>=70?'😊':percent>=50?'🤔':'📖'}</span>`;
+                let html = `<span class="emoji-big">${percent>=90?:percent>=70?:percent>=50?:}</span>`;
                 html += `<div class="score-circle" style="--score-percent:${percent}%;"><span>${percent}%</span></div>`;
                 html += `<h2>Grade: ${grade}</h2>`;
                 html += `<p>You scored ${correct} out of ${MAX_MARKS} marks (${percent}%)</p>`;
@@ -831,8 +830,9 @@
                 dom.btnPrev.addEventListener('click', () => { if (state.currentIndex > 0) goToQuestion(state.currentIndex-1); });
                 dom.btnNext.addEventListener('click', () => { if (state.currentIndex < TOTAL_QUESTIONS-1) goToQuestion(state.currentIndex+1); });
                 dom.btnSubmit.addEventListener('click', showReviewScreen);
+                // FIX: Keyboard shortcuts only when the exam is active
                 document.addEventListener('keydown', e => {
-                    if (state.submitted || dom.lockScreen.style.display !== 'none') return;
+                    if (state.submitted || dom.examContainer.style.display === 'none') return;  // ignore during login/lock
                     if (e.key==='ArrowLeft' && state.currentIndex>0) { e.preventDefault(); goToQuestion(state.currentIndex-1); }
                     else if (e.key==='ArrowRight' && state.currentIndex<TOTAL_QUESTIONS-1) { e.preventDefault(); goToQuestion(state.currentIndex+1); }
                     else if (e.key==='Enter' && state.currentIndex===TOTAL_QUESTIONS-1) { e.preventDefault(); showReviewScreen(); }
