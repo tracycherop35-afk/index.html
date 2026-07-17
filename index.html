@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Intermediate Exam – 2 Hours (Auto‑Graded)</title>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --primary: #4f6ef7;
+            --primary-hover: #3b54e0;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --transition: 0.2s ease;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .screen { width: 100%; display: flex; justify-content: center; align-items: center; }
+        .card {
+            background: var(--card-bg); border-radius: var(--radius);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 40px;
+            text-align: center; width: 100%; max-width: 500px;
+        }
+        .form-group { margin-bottom: 16px; text-align: left; }
+        .form-group label { font-weight: 600; display: block; margin-bottom: 4px; }
+        .form-group input { width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; }
+        .btn-primary {
+            padding:14px 28px; border-radius:50px; font-weight:700; font-size:1rem;
+            cursor:pointer; border:none; background: var(--primary); color:#fff;
+            transition: var(--transition); margin-top: 10px;
+        }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn {
+            padding:12px 24px; border-radius:50px; font-weight:700; font-size:0.95rem;
+            cursor:pointer; border:none; transition: var(--transition);
+            display:inline-flex; align-items:center; gap:6px;
+        }
+        .btn-next { background:var(--primary); color:#fff; }
+        .btn-next:hover { background:var(--primary-hover); }
+        .btn-submit { background:var(--success); color:#fff; }
+        .btn-submit:hover { background:#16a34a; }
+        .btn:disabled { opacity:0.5; pointer-events:none; }
+        #btnPrev { background:#f1f5f9; color:var(--text); }
+        #btnPrev:hover { background:#e2e8f0; }
+
+        .exam-container {
+            max-width: 850px; width: 100%;
+            background: var(--card-bg); border-radius: var(--radius);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        .exam-header {
+            background: linear-gradient(135deg, #F7DF1E, #E6A800);
+            color: #000; padding: 22px 28px; display: flex; align-items: center;
+            justify-content: space-between; flex-wrap: wrap; gap: 14px;
+        }
+        .title-area h1 { font-size:1.4rem; font-weight:700; }
+        .title-area .subtitle { font-size:0.85rem; opacity:0.8; }
+        .timer-box {
+            background: rgba(0,0,0,0.1); border-radius: 50px;
+            padding: 10px 18px; font-weight: 700; font-size: 1.1rem;
+            display: flex; align-items: center; gap: 8px; backdrop-filter: blur(6px);
+        }
+        .timer-box.state-green { background: #22c55e; color: #fff; }
+        .timer-box.state-yellow { background: #f59e0b; animation: pulse 0.8s infinite alternate; }
+        .timer-box.state-orange { background: #f97316; animation: pulse 0.6s infinite alternate; }
+        .timer-box.state-red { background: #ef4444; animation: pulse 0.5s infinite alternate; }
+        @keyframes pulse { from { transform:scale(1); } to { transform:scale(1.06); } }
+        .progress-wrap { padding: 14px 28px 8px; }
+        .progress-info { display: flex; justify-content: space-between; font-size:0.8rem; color: var(--text-light); margin-bottom:6px; font-weight:600; }
+        .progress-bar { height: 8px; background: #e2e8f0; border-radius: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); border-radius: 20px; width:0%; transition: width 0.4s; }
+        .palette { padding: 10px 28px; display: flex; flex-wrap: wrap; gap: 4px; background: #f8fafc; border-bottom: 1px solid var(--border); max-height: 160px; overflow-y: auto; }
+        .palette-btn {
+            width: 30px; height: 30px; border-radius: 6px; border: 1px solid #cbd5e1;
+            background: #fff; font-weight: 600; font-size: 0.75rem; cursor: pointer;
+            transition: 0.2s; color: #1e293b;
+        }
+        .palette-btn.answered { background: #dcfce7; border-color: #22c55e; color: #166534; }
+        .palette-btn.current { background: #4f6ef7; color: #fff; border-color: #4f6ef7; }
+        .palette-btn.unanswered { background: #f1f5f9; color: #94a3b8; }
+        .palette-btn:hover { transform: scale(1.08); }
+        .exam-body { padding: 24px 28px 20px; }
+        .section-header {
+            background: #eef1ff; color: var(--primary); padding: 8px 14px;
+            border-radius: 8px; font-weight: 700; margin-bottom: 16px;
+            font-size:0.85rem; text-transform: uppercase; letter-spacing: 0.8px;
+        }
+        .question-text { font-size: 1.15rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; color: var(--text); }
+        .options-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .option-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+            border: 2px solid var(--border); border-radius: 12px; cursor: pointer;
+            transition: var(--transition); background: #fafbfc; font-weight: 500; user-select: none;
+        }
+        .option-item:hover { border-color:#c4cdf9; background:#f5f7ff; }
+        .option-item.selected { border-color: var(--primary); background:#eef1ff; }
+        .option-radio {
+            width:20px; height:20px; border-radius:50%; border:2px solid #cbd5e1;
+            flex-shrink:0; display:flex; align-items:center; justify-content:center; background:#fff;
+        }
+        .option-item.selected .option-radio { border-color:var(--primary); background:var(--primary); }
+        .option-item.selected .option-radio::after { content:''; width:7px; height:7px; background:#fff; border-radius:50%; }
+        .option-label { font-weight:600; color:var(--primary); min-width:24px; }
+        .option-text { flex:1; color: #1e293b; font-size: 1rem; }
+        .tf-group { display:flex; gap:14px; flex-wrap:wrap; }
+        .tf-btn {
+            flex:1; min-width:120px; padding:16px; border:2px solid var(--border); border-radius:12px;
+            text-align:center; cursor:pointer; font-weight:700; background:#fafbfc; user-select:none;
+        }
+        .tf-btn:hover { border-color:#c4cdf9; background:#f5f7ff; }
+        .tf-btn.selected { border-color:var(--primary); background:#eef1ff; }
+        .fill-input {
+            width:100%; padding:14px 16px; border:2px solid var(--border); border-radius:12px;
+            font-size:1rem; font-family:inherit; outline:none; background:#fafbfc;
+        }
+        .fill-input:focus { border-color:var(--primary); }
+        .code-textarea {
+            width:100%; min-height:180px; padding:14px 16px;
+            border:2px solid var(--border); border-radius:12px;
+            font-family: 'Courier New', monospace; font-size:0.95rem;
+            outline:none; background:#fafbfc; resize:vertical;
+        }
+        .code-textarea:focus { border-color:var(--primary); }
+        .exam-footer {
+            padding:18px 28px 24px; display:flex; justify-content:space-between;
+            align-items:center; gap:12px; flex-wrap:wrap; border-top:1px solid var(--border);
+            background:#fdfdfd;
+        }
+
+        .results-inner {
+            background: var(--card-bg); border-radius: var(--radius); box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 40px; text-align: center; max-width: 700px; width: 100%;
+        }
+        .score-circle {
+            width:140px; height:140px; border-radius:50%; margin:0 auto 20px;
+            display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800;
+            position:relative;
+            background: conic-gradient(var(--success) var(--score-percent), #e2e8f0 var(--score-percent));
+        }
+        .score-circle::before { content:''; position:absolute; inset:12px; background:#fff; border-radius:50%; }
+        .score-circle span { position:relative; z-index:1; }
+        .stats-grid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; text-align:left; margin:16px 0; }
+        .stat-card { background:#f8fafc; border-radius:10px; padding:12px; font-size:0.9rem; border:1px solid var(--border); }
+        .email-status { margin-top: 16px; padding: 10px; border-radius: 8px; font-weight:600; }
+        .email-status.success { background: #dcfce7; color: #166534; }
+        .email-status.fail { background: #fef2f2; color: #991b1b; }
+
+        .overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center;
+            z-index:9999; flex-direction: column; color:#fff; text-align:center;
+        }
+        .overlay h2 { font-size:2rem; margin-bottom:16px; }
+        .overlay p { margin-bottom:24px; font-size:1.1rem; }
+        .btn-warning {
+            padding:12px 24px; border-radius:50px; font-weight:700; border:none;
+            cursor:pointer; background: var(--warning); color:#000;
+        }
+        .review-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:10;
+        }
+        .review-card {
+            background:#fff; border-radius: var(--radius); padding:28px;
+            max-width: 600px; width:90%; max-height:80vh; overflow-y:auto;
+        }
+        .review-card h3 { margin-bottom:16px; }
+        .review-list { display:grid; grid-template-columns: repeat(10,1fr); gap:6px; }
+        .review-list button {
+            width:32px; height:32px; border-radius:6px; border:1px solid #cbd5e1;
+            font-weight:600; cursor:pointer; background:#f1f5f9;
+        }
+        .review-list button.answered { background:#dcfce7; border-color:#22c55e; }
+        .review-list button.unanswered { background:#fef2f2; border-color:#ef4444; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+    <div id="loginScreen" class="screen">
+        <div class="card">
+            <h2>🧑‍💻 Student Details</h2>
+            <div class="form-group"><label>Full Name</label><input type="text" id="studentName" placeholder="e.g. John Doe" required></div>
+            <div class="form-group"><label>Admission Number</label><input type="text" id="studentAdmission" placeholder="e.g. ADM1234" required></div>
+            <div class="form-group"><label>Course</label><input type="text" id="studentCourse" placeholder="e.g. Computer Science" required></div>
+            <div class="form-group"><label>Year</label><input type="text" id="studentYear" placeholder="e.g. 2" required></div>
+            <div class="form-group"><label>Unit Code</label><input type="text" id="studentUnit" placeholder="e.g. CS102" required></div>
+            <div class="form-group"><label>Email (for results copy)</label><input type="email" id="studentEmail" placeholder="student@example.com"></div>
+            <button class="btn-primary" id="btnLogin">Continue to Exam</button>
+        </div>
+    </div>
+
+    <div id="lockScreen" class="screen" style="display:none;">
+        <div class="card">
+            <h2>🔒 Secure Exam Environment</h2>
+            <p>Full‑screen mode required.<br>Do not switch tabs or exit full‑screen.<br>3 violations = auto‑submit.</p>
+            <button class="btn-primary" id="btnLock">Lock & Start Exam</button>
+        </div>
+    </div>
+
+    <div id="examContainer" class="screen" style="display:none;">
+        <div class="exam-container">
+            <header class="exam-header">
+                <div class="title-area">
+                    <h1>📜 JavaScript Intermediate Exam (Auto‑Graded)</h1>
+                    <div class="subtitle">84 Questions • 2 Hours • 4 Coding Tasks</div>
+                </div>
+                <div class="timer-box" id="timerBox"><span>⏱</span> <span id="timerDisplay">2:00:00</span></div>
+            </header>
+            <div class="progress-wrap">
+                <div class="progress-info">
+                    <span id="progressLabel">Question 1 of 84</span>
+                    <span id="answeredCount">0 answered</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+            <div class="palette" id="questionPalette"></div>
+            <div class="exam-body" id="examBody"></div>
+            <footer class="exam-footer">
+                <button class="btn" id="btnPrev" disabled>⬅ Previous</button>
+                <button class="btn btn-next" id="btnNext">Next ➡</button>
+                <button class="btn btn-submit" id="btnSubmit" style="display:none;">✅ Review & Submit</button>
+            </footer>
+        </div>
+    </div>
+
+    <div id="resultsScreen" class="screen" style="display:none;">
+        <div class="results-inner" id="resultsInner"></div>
+    </div>
+
+    <div id="warningOverlay" class="overlay" style="display:none;">
+        <h2>⚠️ Warning</h2>
+        <p>You have left the exam environment.<br><span id="infractionMsg"></span></p>
+        <button class="btn-warning" id="btnReturnFullscreen">Return to Full‑screen</button>
+    </div>
+
+    <script>
+    (function() {
+        // ── CONFIG ────────────────────────────────────
+        const CONFIG = {
+            email: 'psam3a@gmail.com',
+            emailjs: { serviceID: 'service_i22irho', templateID: 'template_77v76hz', publicKey: 'W4nRKEnIwiSMF9B6O' },
+            examTime: 120 * 60,   // 2 hours
+        };
+
+        // ── QUESTIONS POOL (84) ──────────────────────
+        const QUESTIONS_POOL = [
+            // Section A: MCQ (40)
+            { id:1, section:'A', type:'mcq', question:'Which of the following is the correct way to declare a variable in JavaScript?', options:['var myVar;','variable myVar;','v myVar;','declare myVar;'], answer:0 },
+            { id:2, section:'A', type:'mcq', question:'What does the `typeof` operator return for `typeof 42`?', options:['"number"','"string"','"boolean"','"undefined"'], answer:0 },
+            { id:3, section:'A', type:'mcq', question:'Which keyword is used to declare a constant in ES6?', options:['const','let','var','static'], answer:0 },
+            { id:4, section:'A', type:'mcq', question:'How do you write a single‑line comment in JavaScript?', options:['// comment','<!-- comment -->','# comment','/* comment */'], answer:0 },
+            { id:5, section:'A', type:'mcq', question:'What is the result of `3 + "3"`?', options:['"33"','6','33','Error'], answer:0 },
+            { id:6, section:'A', type:'mcq', question:'Which function is used to output data to the console?', options:['console.log()','print()','echo()','cout()'], answer:0 },
+            { id:7, section:'A', type:'mcq', question:'What is an array in JavaScript?', options:['An ordered collection of values','A function','A string','An object with named properties'], answer:0 },
+            { id:8, section:'A', type:'mcq', question:'How do you find the length of an array `arr`?', options:['arr.length','arr.size()','arr.len','length(arr)'], answer:0 },
+            { id:9, section:'A', type:'mcq', question:'Which of the following creates a new object?', options:['{}','[]','()','//'], answer:0 },
+            { id:10, section:'A', type:'mcq', question:'What does `document.getElementById("demo")` return?', options:['An HTML element','A string','An array','A number'], answer:0 },
+            { id:11, section:'A', type:'mcq', question:'Which event occurs when a user clicks on an HTML element?', options:['onclick','onchange','onmouseover','onsubmit'], answer:0 },
+            { id:12, section:'A', type:'mcq', question:'How do you write an `if` statement in JavaScript?', options:['if (condition) { ... }','if condition then { ... }','if (condition) then { ... }','if {condition} ( ... )'], answer:0 },
+            { id:13, section:'A', type:'mcq', question:'What is the purpose of the `let` keyword?', options:['Declare a block‑scoped variable','Declare a constant','Declare a global variable','Declare a function'], answer:0 },
+            { id:14, section:'A', type:'mcq', question:'Which operator is used for strict equality (value and type)?', options:['===','==','=','!='], answer:0 },
+            { id:15, section:'A', type:'mcq', question:'What will `typeof NaN` return?', options:['"number"','"NaN"','"undefined"','"string"'], answer:0 },
+            { id:16, section:'A', type:'mcq', question:'How do you add an element to the end of an array `arr`?', options:['arr.push(element)','arr.add(element)','arr.append(element)','arr.insert(element)'], answer:0 },
+            { id:17, section:'A', type:'mcq', question:'Which loop is commonly used to iterate over the properties of an object?', options:['for...in','for...of','for','while'], answer:0 },
+            { id:18, section:'A', type:'mcq', question:'What does the `map()` method do?', options:['Creates a new array with the results of calling a function on every element','Filters an array','Reduces an array','Sorts an array'], answer:0 },
+            { id:19, section:'A', type:'mcq', question:'How do you declare a function named `greet`?', options:['function greet() {}','def greet() {}','greet = function {}','func greet() {}'], answer:0 },
+            { id:20, section:'A', type:'mcq', question:'What is the result of `typeof null`?', options:['"object"','"null"','"undefined"','"boolean"'], answer:0 },
+            { id:21, section:'A', type:'mcq', question:'Which method removes the last element from an array?', options:['pop()','push()','shift()','unshift()'], answer:0 },
+            { id:22, section:'A', type:'mcq', question:'What is the correct way to access the first element of an array `arr`?', options:['arr[0]','arr[1]','arr.first()','arr.get(0)'], answer:0 },
+            { id:23, section:'A', type:'mcq', question:'Which keyword is used to return a value from a function?', options:['return','result','give','output'], answer:0 },
+            { id:24, section:'A', type:'mcq', question:'What does `addEventListener("click", handler)` do?', options:['Attaches a click event handler to an element','Removes a click handler','Triggers a click event','Prevents click events'], answer:0 },
+            { id:25, section:'A', type:'mcq', question:'Which of the following is a valid arrow function?', options:['() => { return 5; }','() -> { return 5; }','() => return 5;','=> () { return 5; }'], answer:0 },
+            { id:26, section:'A', type:'mcq', question:'What is the scope of a variable declared with `var` inside a function?', options:['Function scoped','Block scoped','Global scoped','Module scoped'], answer:0 },
+            { id:27, section:'A', type:'mcq', question:'Which method converts a JSON string to a JavaScript object?', options:['JSON.parse()','JSON.stringify()','JSON.convert()','JSON.toObject()'], answer:0 },
+            { id:28, section:'A', type:'mcq', question:'What will `console.log(2 + "2")` output?', options:['"22"','4','22','Error'], answer:0 },
+            { id:29, section:'A', type:'mcq', question:'How do you check if a variable `x` is an array?', options:['Array.isArray(x)','x.isArray()','typeof x == "array"','x instanceof Array'], answer:0 },
+            { id:30, section:'A', type:'mcq', question:'Which method is used to select an HTML element by its class name?', options:['document.getElementsByClassName()','document.querySelector()','document.getElementById()','document.getElementByClass()'], answer:0 },
+            { id:31, section:'A', type:'mcq', question:'What is the default value of a variable that has been declared but not initialized?', options:['undefined','null','0','NaN'], answer:0 },
+            { id:32, section:'A', type:'mcq', question:'Which of the following is a template literal?', options:['`Hello ${name}`','"Hello ${name}"','\'Hello ${name}\'','Hello ${name}'], answer:0 },
+            { id:33, section:'A', type:'mcq', question:'How do you write a `for` loop that runs 5 times?', options:['for (let i = 0; i < 5; i++) { }','for (i = 0; i < 5; i++) { }','for (let i = 0; i <= 5; i++) { }','loop (i = 0; i < 5; i++) { }'], answer:0 },
+            { id:34, section:'A', type:'mcq', question:'What does the `filter()` method do?', options:['Creates a new array with elements that pass a test','Creates a new array with all elements','Modifies the original array','Sorts the array'], answer:0 },
+            { id:35, section:'A', type:'mcq', question:'Which object is the top‑level object in the browser?', options:['window','document','navigator','global'], answer:0 },
+            { id:36, section:'A', type:'mcq', question:'What is the correct way to create a new Date object representing the current date and time?', options:['new Date()','Date()','new Date','Date.now()'], answer:0 },
+            { id:37, section:'A', type:'mcq', question:'Which method is used to remove the first element from an array?', options:['shift()','pop()','unshift()','slice()'], answer:0 },
+            { id:38, section:'A', type:'mcq', question:'What will `Boolean("false")` return?', options:['true','false','"false"','undefined'], answer:0 },
+            { id:39, section:'A', type:'mcq', question:'How do you comment out multiple lines in JavaScript?', options:['/* comment */','// comment','<!-- comment -->','# comment'], answer:0 },
+            { id:40, section:'A', type:'mcq', question:'Which of the following is a correct way to declare an arrow function that returns the sum of two numbers?', options:['const sum = (a, b) => a + b;','const sum = (a, b) -> a + b;','const sum = function(a, b) => a + b;','const sum = (a, b) => { a + b; }'], answer:0 },
+
+            // Section B: True/False (20)
+            { id:41, section:'B', type:'tf', question:'JavaScript is a case‑sensitive language.', answer:true },
+            { id:42, section:'B', type:'tf', question:'The `let` keyword allows you to redeclare a variable in the same scope.', answer:false },
+            { id:43, section:'B', type:'tf', question:'`NaN` stands for "Not a Number".', answer:true },
+            { id:44, section:'B', type:'tf', question:'The `===` operator compares both value and type.', answer:true },
+            { id:45, section:'B', type:'tf', question:'A function can be stored in a variable.', answer:true },
+            { id:46, section:'B', type:'tf', question:'`null` and `undefined` are the same value.', answer:false },
+            { id:47, section:'B', type:'tf', question:'The `forEach` method modifies the original array.', answer:false },
+            { id:48, section:'B', type:'tf', question:'`document.write()` can overwrite the entire page if called after the page has loaded.', answer:true },
+            { id:49, section:'B', type:'tf', question:'Arrow functions have their own `this` context.', answer:false },
+            { id:50, section:'B', type:'tf', question:'`localStorage` data persists even after the browser is closed.', answer:true },
+            { id:51, section:'B', type:'tf', question:'The `var` keyword declares a block‑scoped variable.', answer:false },
+            { id:52, section:'B', type:'tf', question:'`JSON.stringify()` converts a JavaScript object to a JSON string.', answer:true },
+            { id:53, section:'B', type:'tf', question:'`addEventListener` can only attach one event handler to an element.', answer:false },
+            { id:54, section:'B', type:'tf', question:'The `map()` method returns a new array.', answer:true },
+            { id:55, section:'B', type:'tf', question:'`setTimeout` executes a function repeatedly at intervals.', answer:false },
+            { id:56, section:'B', type:'tf', question:'`document.querySelector` returns the first matching element.', answer:true },
+            { id:57, section:'B', type:'tf', question:'`parseInt("10px")` returns `10`.', answer:true },
+            { id:58, section:'B', type:'tf', question:'JavaScript is a compiled language.', answer:false },
+            { id:59, section:'B', type:'tf', question:'`Array.isArray([])` returns `true`.', answer:true },
+            { id:60, section:'B', type:'tf', question:'The `this` keyword inside an arrow function refers to the surrounding lexical context.', answer:true },
+
+            // Section C: Short Answer (20)
+            { id:61, section:'C', type:'fill', question:'What is the keyword to declare a constant in JavaScript?', answer:'const' },
+            { id:62, section:'C', type:'fill', question:'Write the syntax to display an alert with the message "Hello".', answer:'alert("Hello");' },
+            { id:63, section:'C', type:'fill', question:'What method adds an item to the end of an array?', answer:'push' },
+            { id:64, section:'C', type:'fill', question:'What does `typeof 5` return?', answer:'number' },
+            { id:65, section:'C', type:'fill', question:'How do you declare an arrow function that takes no arguments and returns the number 42?', answer:'() => 42' },
+            { id:66, section:'C', type:'fill', question:'What is the output of `console.log(5 > 3 ? "yes" : "no");`?', answer:'yes' },
+            { id:67, section:'C', type:'fill', question:'Which method converts a JavaScript object to a JSON string?', answer:'JSON.stringify' },
+            { id:68, section:'C', type:'fill', question:'Write the code to select an element with id "demo".', answer:'document.getElementById("demo")' },
+            { id:69, section:'C', type:'fill', question:'What is the result of `typeof undefined`?', answer:'undefined' },
+            { id:70, section:'C', type:'fill', question:'How do you remove the last element from an array?', answer:'pop' },
+            { id:71, section:'C', type:'fill', question:'What method removes the first element of an array?', answer:'shift' },
+            { id:72, section:'C', type:'fill', question:'Write the syntax to create a new array containing [1, 2, 3].', answer:'[1,2,3]' },
+            { id:73, section:'C', type:'fill', question:'What is the purpose of `addEventListener`?', answer:'attach event handler' },
+            { id:74, section:'C', type:'fill', question:'What keyword stops a loop iteration and continues with the next iteration?', answer:'continue' },
+            { id:75, section:'C', type:'fill', question:'How do you write a for loop that iterates over an array `arr`?', answer:'for (let i = 0; i < arr.length; i++)' },
+            { id:76, section:'C', type:'fill', question:'What is the return value of `typeof null`?', answer:'object' },
+            { id:77, section:'C', type:'fill', question:'Write a function declaration for `double` that takes `x` and returns `x * 2`.', answer:'function double(x) { return x * 2; }' },
+            { id:78, section:'C', type:'fill', question:'What method joins all elements of an array into a string?', answer:'join' },
+            { id:79, section:'C', type:'fill', question:'Which global function executes a piece of code after a specified delay?', answer:'setTimeout' },
+            { id:80, section:'C', type:'fill', question:'What does the `length` property of an array return?', answer:'number of elements' },
+
+            // Section D: Practical Coding (4) – auto‑graded (10 marks each)
+            { 
+                id:81, section:'D', type:'code', 
+                question:'Write a JavaScript function `isEven(num)` that returns `true` if the number is even, and `false` otherwise. Include a test call with `console.log(isEven(4));`.', 
+                marks:10,
+                checks: [
+                    { regex: /function\s+isEven\s*\(/, points: 2, msg: 'Function named isEven declared' },
+                    { regex: /return\s+.*%/, points: 2, msg: 'Uses modulo operator' },
+                    { regex: /true|false/i, points: 1, msg: 'Returns true or false' },
+                    { regex: /console\.log\(isEven\(4\)\)/, points: 3, msg: 'Test call with isEven(4) inside console.log' },
+                    { regex: /isEven\(4\)/, points: 2, msg: 'Calls isEven(4)' }
+                ]
+            },
+            { 
+                id:82, section:'D', type:'code', 
+                question:'Create an array `fruits` containing "apple", "banana", "orange". Write code that logs each fruit to the console using a loop.', 
+                marks:10,
+                checks: [
+                    { regex: /\bfruits\s*=\s*\[/, points: 2, msg: 'Array assigned to variable fruits' },
+                    { regex: /apple.*banana.*orange/i, points: 2, msg: 'Contains the three fruits' },
+                    { regex: /for\s*\(/, points: 2, msg: 'Uses a for loop' },
+                    { regex: /console\.log\(/, points: 2, msg: 'Logs to console' },
+                    { regex: /fruits\.length/, points: 2, msg: 'Uses length property' }
+                ]
+            },
+            { 
+                id:83, section:'D', type:'code', 
+                question:'Write a function `convertToSeconds(minutes)` that takes a number of minutes and returns the equivalent number of seconds. Call it with `convertToSeconds(5)` and log the result.', 
+                marks:10,
+                checks: [
+                    { regex: /function\s+convertToSeconds/, points: 3, msg: 'Function convertToSeconds defined' },
+                    { regex: /minutes\s*\*\s*60/, points: 3, msg: 'Multiplies minutes by 60' },
+                    { regex: /return/, points: 2, msg: 'Uses return statement' },
+                    { regex: /console\.log\(convertToSeconds\(5\)\)/, points: 2, msg: 'Logs convertToSeconds(5)' }
+                ]
+            },
+            { 
+                id:84, section:'D', type:'code', 
+                question:'Select an HTML element with id "demo" and change its text content to "Hello, World!". Write the JavaScript code (assume the element exists).', 
+                marks:10,
+                checks: [
+                    { regex: /document\.getElementById\(["']demo["']\)/, points: 4, msg: 'Selects element with id "demo"' },
+                    { regex: /\.textContent\s*=/, points: 4, msg: 'Sets textContent property' },
+                    { regex: /Hello,\s*World!?/i, points: 2, msg: 'Text set to Hello, World!' }
+                ]
+            }
+        ];
+
+        // ── SHUFFLE & PREPARE QUESTIONS ─────────────
+        const shuffleArray = (arr) => {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        };
+        const QUESTIONS = [];
+        const secA = QUESTIONS_POOL.filter(q => q.section === 'A');
+        const secB = QUESTIONS_POOL.filter(q => q.section === 'B');
+        const secC = QUESTIONS_POOL.filter(q => q.section === 'C');
+        const secD = QUESTIONS_POOL.filter(q => q.section === 'D');
+        shuffleArray(secA); shuffleArray(secB); shuffleArray(secC);
+        let qCounter = 1;
+        [secA, secB, secC, secD].forEach(arr => {
+            arr.forEach(q => {
+                q.displayId = qCounter++;
+                if (q.type === 'mcq' && q.options) {
+                    const correct = q.options[q.answer];
+                    const indices = q.options.map((_, i) => i);
+                    shuffleArray(indices);
+                    q.options = indices.map(i => q.options[i]);
+                    q.answer = q.options.indexOf(correct);
+                }
+                QUESTIONS.push(q);
+            });
+        });
+
+        const TOTAL_QUESTIONS = QUESTIONS.length;
+        const MAX_MARKS = 100 + secD.reduce((sum, q) => sum + q.marks, 0); // 140
+
+        // ── STATE ─────────────────────────────────
+        const state = {
+            currentIndex: 0,
+            answers: new Array(TOTAL_QUESTIONS).fill(null),
+            timeRemaining: CONFIG.examTime,
+            timerInterval: null,
+            submitted: false,
+            infractions: 0,
+            startTime: null,
+            student: { name: '', admission: '', course: '', year: '', unit: '', email: '' },
+        };
+
+        // ── DOM ELEMENTS ────────────────────────
+        const dom = {};
+        ['loginScreen','lockScreen','examContainer','warningOverlay','examBody','examFooter','resultsScreen','resultsInner','timerDisplay','timerBox','progressFill','progressLabel','answeredCount','questionPalette','btnPrev','btnNext','btnSubmit','btnLock','btnReturnFullscreen','btnLogin','infractionMsg'].forEach(id => dom[id] = document.getElementById(id));
+
+        // ── UTILITY FUNCTIONS ─────────────────
+        const formatTime = (seconds) => {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return hrs > 0 ? `${hrs}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}` 
+                           : `${mins}:${secs.toString().padStart(2,'0')}`;
+        };
+        const escapeHTML = (str) => String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const normalizeAnswer = (str) => String(str).replace(/[<>]/g,'').trim().toLowerCase();
+        const isAnswered = (index) => state.answers[index] !== null && state.answers[index] !== '';
+        const isAnswerCorrect = (userAns, correct) => {
+            if (Array.isArray(correct)) return correct.some(ans => normalizeAnswer(userAns) === normalizeAnswer(ans));
+            return normalizeAnswer(userAns) === normalizeAnswer(correct);
+        };
+
+        // ── UI RENDERING ────────────────────────
+        function renderPalette() {
+            let html = '';
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+                let cls = 'palette-btn';
+                if (i === state.currentIndex) cls += ' current';
+                else if (isAnswered(i)) cls += ' answered';
+                else cls += ' unanswered';
+                html += `<button class="${cls}" data-index="${i}">${i+1}</button>`;
+            }
+            dom.questionPalette.innerHTML = html;
+            dom.questionPalette.querySelectorAll('.palette-btn').forEach(btn => btn.addEventListener('click', () => goToQuestion(parseInt(btn.dataset.index))));
+        }
+
+        function updateProgressUI() {
+            const answered = state.answers.filter(a => a !== null && a !== '').length;
+            dom.progressFill.style.width = `${(answered / TOTAL_QUESTIONS) * 100}%`;
+            dom.progressLabel.textContent = `Question ${state.currentIndex + 1} of ${TOTAL_QUESTIONS}`;
+            dom.answeredCount.textContent = `${answered} answered`;
+            renderPalette();
+        }
+
+        function goToQuestion(index) {
+            if (index < 0 || index >= TOTAL_QUESTIONS) return;
+            state.currentIndex = index;
+            renderQuestion();
+        }
+
+        function updateButtons() {
+            dom.btnPrev.disabled = (state.currentIndex === 0);
+            if (state.currentIndex === TOTAL_QUESTIONS - 1) {
+                dom.btnNext.style.display = 'none';
+                dom.btnSubmit.style.display = 'inline-flex';
+            } else {
+                dom.btnNext.style.display = 'inline-flex';
+                dom.btnSubmit.style.display = 'none';
+                dom.btnNext.disabled = false;
+            }
+        }
+
+        function saveAnswer(index, value) {
+            state.answers[index] = value;
+            updateProgressUI();
+            Storage.save();
+        }
+
+        function renderQuestion() {
+            const q = QUESTIONS[state.currentIndex];
+            const saved = state.answers[state.currentIndex];
+            let html = '';
+            const sectionNames = {
+                A:'Multiple Choice (1-40)',
+                B:'True / False (41-60)',
+                C:'Short Answer (61-80)',
+                D:'Practical Coding (81-84) – Auto‑Graded'
+            };
+            html += `<div class="section-header">Section ${q.section}: ${sectionNames[q.section]}</div>`;
+            html += `<div class="question-text">${q.displayId}. ${escapeHTML(q.question)}</div>`;
+
+            if (q.type === 'mcq') {
+                html += '<ul class="options-list">';
+                const labels = ['A','B','C','D'];
+                q.options.forEach((opt, i) => {
+                    const selected = (saved === i) ? ' selected' : '';
+                    html += `<li class="option-item${selected}" data-opt-index="${i}"><div class="option-radio"></div><span class="option-label">${labels[i]}.</span><span class="option-text">${escapeHTML(opt)}</span></li>`;
+                });
+                html += '</ul>';
+            } else if (q.type === 'tf') {
+                html += '<div class="tf-group">';
+                const opts = [{val:true, label:'✅ True'}, {val:false, label:'❌ False'}];
+                opts.forEach(opt => {
+                    const selected = (saved === opt.val) ? ' selected' : '';
+                    html += `<div class="tf-btn${selected}" data-tf-val="${opt.val}">${opt.label}</div>`;
+                });
+                html += '</div>';
+            } else if (q.type === 'fill') {
+                const val = saved !== null ? saved : '';
+                html += `<input type="text" class="fill-input" id="fillInput" placeholder="Type your answer..." value="${escapeHTML(val)}" autocomplete="off">`;
+            } else if (q.type === 'code') {
+                const val = saved !== null ? saved : '';
+                html += `<textarea class="code-textarea" id="codeInput" placeholder="Write your JavaScript code here...">${escapeHTML(val)}</textarea>`;
+                html += `<p style="margin-top:8px; font-size:0.85rem; color:var(--text-light);">Your code will be auto‑graded based on required elements.</p>`;
+            }
+            dom.examBody.innerHTML = html;
+            attachQuestionListeners();
+            updateButtons();
+            updateProgressUI();
+            Storage.save();
+        }
+
+        function attachQuestionListeners() {
+            const q = QUESTIONS[state.currentIndex];
+            if (q.type === 'mcq') {
+                const items = dom.examBody.querySelectorAll('.option-item');
+                items.forEach(item => item.addEventListener('click', function() {
+                    if (state.submitted) return;
+                    const idx = parseInt(this.dataset.optIndex);
+                    items.forEach(el => el.classList.remove('selected'));
+                    this.classList.add('selected');
+                    saveAnswer(state.currentIndex, idx);
+                }));
+            } else if (q.type === 'tf') {
+                const btns = dom.examBody.querySelectorAll('.tf-btn');
+                btns.forEach(btn => btn.addEventListener('click', function() {
+                    if (state.submitted) return;
+                    const val = this.dataset.tfVal === 'true';
+                    btns.forEach(el => el.classList.remove('selected'));
+                    this.classList.add('selected');
+                    saveAnswer(state.currentIndex, val);
+                }));
+            } else if (q.type === 'fill') {
+                const input = dom.examBody.querySelector('#fillInput');
+                if (input) {
+                    input.addEventListener('input', function() {
+                        if (state.submitted) return;
+                        saveAnswer(state.currentIndex, this.value.trim());
+                    });
+                    setTimeout(() => input.focus(), 100);
+                }
+            } else if (q.type === 'code') {
+                const textarea = dom.examBody.querySelector('#codeInput');
+                if (textarea) {
+                    textarea.addEventListener('input', function() {
+                        if (state.submitted) return;
+                        saveAnswer(state.currentIndex, this.value);
+                    });
+                }
+            }
+        }
+
+        function showReviewScreen() {
+            const answered = state.answers.filter(a => a !== null && a !== '').length;
+            const unanswered = TOTAL_QUESTIONS - answered;
+            const overlay = document.createElement('div');
+            overlay.className = 'review-overlay';
+            overlay.innerHTML = `
+                <div class="review-card">
+                    <h3>📋 Review Your Answers</h3>
+                    <p>Answered: <strong>${answered}</strong> | Unanswered: <strong style="color:#ef4444;">${unanswered}</strong></p>
+                    <div class="review-list" id="reviewGrid"></div>
+                    <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+                        <button class="btn" style="background:#f1f5f9; color:var(--text);" id="reviewCancel">🔙 Continue Exam</button>
+                        <button class="btn btn-submit" id="reviewConfirm">✅ Submit Final</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+            const grid = overlay.querySelector('#reviewGrid');
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i+1;
+                btn.className = isAnswered(i) ? 'answered' : 'unanswered';
+                btn.addEventListener('click', () => { overlay.remove(); goToQuestion(i); });
+                grid.appendChild(btn);
+            }
+            overlay.querySelector('#reviewCancel').addEventListener('click', () => overlay.remove());
+            overlay.querySelector('#reviewConfirm').addEventListener('click', () => { overlay.remove(); App.submitExam(); });
+        }
+
+        // ── TIMER ─────────────────────────────────
+        const Timer = {
+            updateUI() {
+                dom.timerDisplay.textContent = formatTime(state.timeRemaining);
+                dom.timerBox.className = 'timer-box';
+                if (state.timeRemaining > 900) dom.timerBox.classList.add('state-green');
+                else if (state.timeRemaining > 300) dom.timerBox.classList.add('state-yellow');
+                else if (state.timeRemaining > 120) dom.timerBox.classList.add('state-orange');
+                else dom.timerBox.classList.add('state-red');
+            },
+            start() {
+                state.startTime = new Date();
+                this.updateUI();
+                state.timerInterval = setInterval(() => {
+                    state.timeRemaining--;
+                    this.updateUI();
+                    Storage.save();
+                    if (state.timeRemaining <= 0) {
+                        clearInterval(state.timerInterval);
+                        alert('⏰ Time is up!');
+                        App.submitExam();
+                    }
+                }, 1000);
+            },
+            stop() { if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; } }
+        };
+
+        // ── SECURITY ─────────────────────────────
+        const Security = {
+            requestFullscreen() {
+                const el = document.documentElement;
+                if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+                else if (el.msRequestFullscreen) el.msRequestFullscreen();
+            },
+            isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement); },
+            blockCheating(e) {
+                if (state.submitted || dom.lockScreen.style.display !== 'none') return;
+                if (['contextmenu','copy','paste','cut','dragstart','selectstart'].includes(e.type)) {
+                    e.preventDefault();
+                    this.showWarning();
+                }
+                if (e.type === 'keydown') {
+                    const key = e.key, ctrl = e.ctrlKey || e.metaKey;
+                    if (key==='F12' || (ctrl&&key==='u') || (ctrl&&key==='s') || (ctrl&&key==='p') ||
+                        (ctrl&&key==='h') || (ctrl&&key==='j') || (ctrl&&key==='c'&&e.shiftKey) || (ctrl&&key==='i')) {
+                        e.preventDefault();
+                        this.showWarning();
+                    }
+                }
+            },
+            showWarning() {
+                state.infractions++;
+                dom.infractionMsg.textContent = `Violations: ${state.infractions}/3`;
+                dom.warningOverlay.style.display = 'flex';
+                if (state.infractions >= 3) { alert('Too many violations. Exam terminated.'); App.submitExam(); }
+            },
+            hideWarning() { dom.warningOverlay.style.display = 'none'; },
+            init() {
+                ['contextmenu','copy','paste','cut','dragstart','selectstart'].forEach(ev => document.addEventListener(ev, this.blockCheating));
+                document.addEventListener('keydown', this.blockCheating);
+                document.addEventListener('fullscreenchange', () => {
+                    if (!this.isFullscreen() && !state.submitted && dom.lockScreen.style.display==='none') this.showWarning();
+                    else if (this.isFullscreen() && dom.warningOverlay.style.display==='flex') this.hideWarning();
+                });
+                document.addEventListener('visibilitychange', () => { if (document.hidden && !state.submitted && dom.lockScreen.style.display==='none') this.showWarning(); });
+                window.addEventListener('beforeunload', e => { if (!state.submitted && dom.lockScreen.style.display==='none') { e.preventDefault(); e.returnValue = ''; } });
+            }
+        };
+
+        // ── STORAGE ──────────────────────────────
+        const Storage = {
+            key: 'jsExamV1',
+            save() { localStorage.setItem(this.key, JSON.stringify({ answers: state.answers, timeRemaining: state.timeRemaining, currentIndex: state.currentIndex, infractions: state.infractions, student: state.student, startTime: state.startTime?.toISOString() })); },
+            load() { try { const d = JSON.parse(localStorage.getItem(this.key)); if (d?.answers && d.timeRemaining !== undefined) { Object.assign(state, d); state.startTime = d.startTime ? new Date(d.startTime) : null; return true; } } catch(e) {} return false; },
+            clear() { localStorage.removeItem(this.key); }
+        };
+
+        // ── EMAIL ────────────────────────────────
+        const Email = {
+            init() { try { if (typeof emailjs !== 'undefined') emailjs.init(CONFIG.emailjs.publicKey); } catch(e) {} },
+            generateReport(scoreData) {
+                const { correct, details } = scoreData;
+                const percent = Math.round((correct / MAX_MARKS) * 100);
+                const grade = App.getGrade(percent);
+                const timeUsed = CONFIG.examTime - state.timeRemaining;
+                let text = `Student: ${state.student.name} | Admission: ${state.student.admission}\n`;
+                text += `Course: ${state.student.course} | Year: ${state.student.year} | Unit: ${state.student.unit}\n`;
+                text += `Email: ${state.student.email}\n`;
+                text += `Started: ${state.startTime?.toLocaleTimeString() || 'N/A'} | Finished: ${new Date().toLocaleTimeString()}\n`;
+                text += `Duration: ${formatTime(timeUsed)}\n`;
+                text += `Browser: ${navigator.userAgent}\nPlatform: ${navigator.platform}\nInfractions: ${state.infractions}\n`;
+                text += `Total Score: ${correct}/${MAX_MARKS} (${percent}%) | Grade: ${grade}\n\n`;
+                text += `Answer Breakdown:\n`;
+                details.forEach((d, i) => {
+                    const q = d.question;
+                    if (q.type === 'code') {
+                        text += `\n--- Code Question ${q.displayId} (${d.points}/${q.marks} marks) ---\n${q.question}\n`;
+                        if (d.checks) d.checks.forEach(c => text += `  ${c.passed ? '✅' : '❌'} ${c.msg} (${c.points} pts)\n`);
+                        text += `\nSubmitted Code:\n${state.answers[i] || 'No code submitted'}\n`;
+                    } else {
+                        const correctAns = q.type === 'mcq' ? q.options[q.answer] : (q.type === 'tf' ? (q.answer ? 'True' : 'False') : q.answer);
+                        const userAnsText = d.userAnswer !== null && d.userAnswer !== '' ? (q.type === 'mcq' ? q.options[d.userAnswer] : (q.type === 'tf' ? (d.userAnswer ? 'True' : 'False') : d.userAnswer)) : 'No answer';
+                        text += `Q${q.displayId}. ${q.question}\n   Student: ${userAnsText}\n   Correct: ${correctAns} ${d.isCorrect ? '✅' : '❌'}\n\n`;
+                    }
+                });
+                return text;
+            },
+            async send(scoreData) {
+                const statusDiv = document.getElementById('emailStatus');
+                if (!statusDiv) return;
+                statusDiv.textContent = '📤 Sending results...'; statusDiv.className = 'email-status';
+                try {
+                    await emailjs.send(CONFIG.emailjs.serviceID, CONFIG.emailjs.templateID, {
+                        student_name: state.student.name, admission: state.student.admission, course: state.student.course,
+                        year: state.student.year, unit: state.student.unit, student_email: state.student.email,
+                        score: Math.round((scoreData.correct / MAX_MARKS) * 100),
+                        grade: App.getGrade(Math.round((scoreData.correct / MAX_MARKS) * 100)),
+                        correct: scoreData.correct,
+                        wrong: MAX_MARKS - scoreData.correct,
+                        attempted: state.answers.filter(a => a !== null && a !== '').length,
+                        skipped: TOTAL_QUESTIONS - state.answers.filter(a => a !== null && a !== '').length,
+                        time: formatTime(CONFIG.examTime - state.timeRemaining),
+                        infractions: state.infractions,
+                        results: this.generateReport(scoreData),
+                        browser: navigator.userAgent, platform: navigator.platform, language: navigator.language,
+                        start_time: state.startTime ? state.startTime.toLocaleTimeString() : '', end_time: new Date().toLocaleTimeString()
+                    });
+                    statusDiv.textContent = '✅ Results sent successfully.'; statusDiv.className = 'email-status success';
+                } catch(e) {
+                    statusDiv.textContent = '❌ Failed to send results.'; statusDiv.className = 'email-status fail';
+                }
+            }
+        };
+
+        // ── AUTO‑GRADE CODE QUESTIONS ───────────────
+        function gradeCodeQuestion(q, userCode) {
+            if (!userCode || !q.checks) return { points: 0, checks: [] };
+            const results = [];
+            let total = 0;
+            q.checks.forEach(check => {
+                const passed = check.regex.test(userCode);
+                if (passed) total += check.points;
+                results.push({ ...check, passed });
+            });
+            return { points: total, checks: results };
+        }
+
+        const App = {
+            calculateScore() {
+                let totalScore = 0;
+                const details = [];
+                QUESTIONS.forEach((q, i) => {
+                    if (q.type === 'code') {
+                        const userCode = state.answers[i] || '';
+                        const { points, checks } = gradeCodeQuestion(q, userCode);
+                        totalScore += points;
+                        details.push({ question: q, userAnswer: userCode, isCorrect: false, points, checks });
+                    } else {
+                        const userAns = state.answers[i];
+                        let isCorrect = false;
+                        if (q.type === 'mcq') isCorrect = (userAns === q.answer);
+                        else if (q.type === 'tf') isCorrect = (userAns === q.answer);
+                        else if (q.type === 'fill') {
+                            if (userAns === null || userAns === '') isCorrect = false;
+                            else isCorrect = isAnswerCorrect(userAns, q.answer);
+                        }
+                        if (isCorrect) totalScore += 1;
+                        details.push({ question: q, userAnswer: userAns, isCorrect });
+                    }
+                });
+                return { correct: totalScore, total: MAX_MARKS, details };
+            },
+            getGrade(percent) { if (percent>=90) return 'A+'; if (percent>=80) return 'A'; if (percent>=70) return 'B'; if (percent>=60) return 'C'; if (percent>=50) return 'D'; return 'F'; },
+            renderResults(scoreData) {
+                const { correct } = scoreData;
+                const percent = Math.round((correct / MAX_MARKS) * 100);
+                const grade = this.getGrade(percent);
+                const timeUsed = CONFIG.examTime - state.timeRemaining;
+                let html = `<span class="emoji-big">${percent>=90?'🏆':percent>=70?'😊':percent>=50?'🤔':'📖'}</span>`;
+                html += `<div class="score-circle" style="--score-percent:${percent}%;"><span>${percent}%</span></div>`;
+                html += `<h2>Grade: ${grade}</h2>`;
+                html += `<p>You scored ${correct} out of ${MAX_MARKS} marks (${percent}%)</p>`;
+                html += `<p style="color:var(--primary);">Coding questions were automatically marked based on required elements.</p>`;
+                html += `<div class="stats-grid">
+                    <div class="stat-card">⏱ Time used: ${formatTime(timeUsed)}</div>
+                    <div class="stat-card">📝 Total attempted: ${state.answers.filter(a => a !== null && a !== '').length}</div>
+                    <div class="stat-card">✅ Marks obtained: ${correct}</div>
+                    <div class="stat-card">❌ Marks lost: ${MAX_MARKS - correct}</div>
+                </div>`;
+                html += `<p style="color:#ef4444;">Infractions: ${state.infractions}</p>`;
+                html += `<div id="emailStatus" class="email-status"></div>`;
+                html += `<button class="btn-primary" onclick="location.reload()" style="margin-top:20px;">🔄 Retake Exam</button>`;
+                dom.resultsInner.innerHTML = html;
+                dom.examContainer.style.display = 'none';
+                dom.resultsScreen.style.display = 'flex';
+            },
+            async submitExam() {
+                if (state.submitted) return;
+                state.submitted = true;
+                Timer.stop();
+                Storage.clear();
+                if (document.fullscreenElement) document.exitFullscreen();
+                const scoreData = this.calculateScore();
+                this.renderResults(scoreData);
+                Email.send(scoreData);
+            },
+            startExam() {
+                const resumed = Storage.load();
+                if (!resumed || state.timeRemaining <= 0 || state.submitted) {
+                    state.answers = new Array(TOTAL_QUESTIONS).fill(null);
+                    state.timeRemaining = CONFIG.examTime;
+                    state.currentIndex = 0;
+                    state.infractions = 0;
+                    Storage.clear();
+                }
+                state.submitted = false;
+                dom.examBody.style.display = 'block';
+                dom.examFooter.style.display = 'flex';
+                dom.resultsScreen.style.display = 'none';
+                document.querySelector('.progress-wrap').style.display = 'block';
+                dom.questionPalette.style.display = 'flex';
+                renderQuestion();
+                Timer.start();
+                updateProgressUI();
+            },
+            init() {
+                Email.init();
+                Security.init();
+
+                dom.btnLogin.addEventListener('click', () => {
+                    const fields = ['studentName','studentAdmission','studentCourse','studentYear','studentUnit'];
+                    const values = fields.map(id => document.getElementById(id).value.trim());
+                    const email = document.getElementById('studentEmail').value.trim();
+                    if (values.some(v => !v)) { alert('Please fill all required fields.'); return; }
+                    state.student = { name:values[0], admission:values[1], course:values[2], year:values[3], unit:values[4], email };
+                    dom.loginScreen.style.display = 'none';
+                    dom.lockScreen.style.display = 'flex';
+                    Storage.save();
+                });
+
+                dom.btnLock.addEventListener('click', () => {
+                    Security.requestFullscreen();
+                    dom.lockScreen.style.display = 'none';
+                    dom.examContainer.style.display = 'flex';
+                    App.startExam();
+                });
+
+                dom.btnReturnFullscreen.addEventListener('click', () => {
+                    Security.requestFullscreen();
+                    Security.hideWarning();
+                });
+
+                dom.btnPrev.addEventListener('click', () => { if (state.currentIndex > 0) goToQuestion(state.currentIndex-1); });
+                dom.btnNext.addEventListener('click', () => { if (state.currentIndex < TOTAL_QUESTIONS-1) goToQuestion(state.currentIndex+1); });
+                dom.btnSubmit.addEventListener('click', showReviewScreen);
+
+                // Keyboard shortcuts (only during exam)
+                document.addEventListener('keydown', (e) => {
+                    if (state.submitted || dom.examContainer.style.display === 'none') return;
+                    if (e.key==='ArrowLeft' && state.currentIndex>0) { e.preventDefault(); goToQuestion(state.currentIndex-1); }
+                    else if (e.key==='ArrowRight' && state.currentIndex<TOTAL_QUESTIONS-1) { e.preventDefault(); goToQuestion(state.currentIndex+1); }
+                    else if (e.key==='Enter' && state.currentIndex===TOTAL_QUESTIONS-1) { e.preventDefault(); showReviewScreen(); }
+                    const q = QUESTIONS[state.currentIndex];
+                    if (q.type==='mcq') {
+                        const map = { a:0,b:1,c:2,d:3,'1':0,'2':1,'3':2,'4':3 };
+                        const idx = map[e.key.toLowerCase()];
+                        if (idx !== undefined && idx < q.options.length) {
+                            e.preventDefault(); saveAnswer(state.currentIndex, idx);
+                            const items = dom.examBody.querySelectorAll('.option-item');
+                            items.forEach(el => el.classList.remove('selected'));
+                            if (items[idx]) items[idx].classList.add('selected');
+                        }
+                    }
+                    if (q.type==='tf') {
+                        if (e.key.toLowerCase()==='t'||e.key==='1') { e.preventDefault(); saveAnswer(state.currentIndex, true); const btns = dom.examBody.querySelectorAll('.tf-btn'); btns.forEach(el => el.classList.remove('selected')); if (btns[0]) btns[0].classList.add('selected'); }
+                        else if (e.key.toLowerCase()==='f'||e.key==='2') { e.preventDefault(); saveAnswer(state.currentIndex, false); const btns = dom.examBody.querySelectorAll('.tf-btn'); btns.forEach(el => el.classList.remove('selected')); if (btns[1]) btns[1].classList.add('selected'); }
+                    }
+                });
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => App.init());
+    })();
+    </script>
+</body>
+</html>
